@@ -1,9 +1,9 @@
-// Assort.c
+// Evaluate.c
 // Dan Nguyen
 
-#include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "Stack.h"
 #include "Calculator.h"
@@ -31,10 +31,8 @@ void evaluate(Stack s) {
 
         } else if (isdigit(s->postfix[i]) || isDecimalPoint(s->postfix[i])) {
 
-            double value;
-
             // loop through number
-            for (value = 0.0; !isspace(s->postfix[i]) || s->postfix[i] != '\0'; i++) {
+            for (double value = 0.0; !isspace(s->postfix[i]) || s->postfix[i] != '\0'; i++) {
 
                 // !digit is indicator for when a sequence of digits ends
                 // do not break if token is a decimal point
@@ -52,15 +50,16 @@ void evaluate(Stack s) {
                     i++;
 
                     // use different algorithm when decimal place is encountered
-                    for (float divisor = 1.0; !isspace(s->postfix[i]) && s->postfix[i] != '\0'; i++) {
-                        divisor *=  10.0;
-                        value = value + (s->postfix[i] - '0')/divisor;
-
-                        if (!isdigit(s->postfix[i]) || !isDecimalPoint(s->postfix[i]) || isspace(s->postfix[i])) {
+                    for (double divisor = 1.0; !isspace(s->postfix[i]) || s->postfix[i] != '\0'; i++) {
+                        
+                        // break loop if found space, nondigit token or decimal point
+                        if (!isdigit(s->postfix[i]) || isDecimalPoint(s->postfix[i]) || isspace(s->postfix[i])) {
                             pushValues(s, value);
-                            printf("value = %lf\n", value);
                             goto end;
                         }
+                        
+                        divisor *=  10.0;
+                        value = value + (s->postfix[i] - '0')/divisor;
                     }
                 } else {
                     // add numbers before decimal place
@@ -151,3 +150,4 @@ static long double power(long double b, long double a) {
 
     return value;
 }
+
