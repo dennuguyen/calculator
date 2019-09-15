@@ -21,36 +21,36 @@ static int isRightParenthesis(char token);
 // converts infix expressions to postfix
 // operands are pushed into postfix expression
 // operators are pushed into opStack then popped from opStack into postfix expression
-void convert(Stack s, char* expression) {
+void convert(Stack s, char* infix) {
 
     // i is position index of infix expression
     // j is position index of postfix expression
     int i, j;
 
     // pass through the infix expression
-    for (i = 0, j = -1; expression[i] != '\0'; i++) {
+    for (i = 0, j = -1; infix[i] != '\0'; i++) {
 
         // assign operands to postfix expression
-        if (isdigit(expression[i]) || isalpha(expression[i]) || isDecimalPoint(expression[i])) {
+        if (isdigit(infix[i]) || isalpha(infix[i]) || isDecimalPoint(infix[i])) {
 
-            s->postfix[++j] = expression[i];
+            s->postfix[++j] = infix[i];
 
         // push left parenthesis to operator stack
-        } else if (isLeftParenthesis(expression[i])) {
+        } else if (isLeftParenthesis(infix[i])) {
 
             // operator must exist before '('
-            // exclude if space exists before '(' or if at beginning of expression
-            if (!isOperator(expression[i - 1]) && i > 0 && !isspace(expression[i - 1])) {
+            // exclude if space exists before '(' or if at beginning of infix
+            if (!isOperator(infix[i - 1]) && i > 0 && !isspace(infix[i - 1])) {
                 fprintf(stderr, "\nError: Invalid Expression. Check operator before '('.\n\n");
                 exit(1);
             }
 
-            pushOperators(s, expression[i]);
+            pushOperators(s, infix[i]);
 
         // if encounter a right parenthesis
         // pop operators from operator stack to postfix expression
         // until left parenthesis
-        } else if (isRightParenthesis(expression[i])) {
+        } else if (isRightParenthesis(infix[i])) {
 
             while (!isOpStackEmpty(s) && !isLeftParenthesis(peekOperators(s))) {
                 s->postfix[++j] = popOperators(s);
@@ -62,14 +62,14 @@ void convert(Stack s, char* expression) {
 
         // push operator into operator stack unless its precedence is greater than the top operator
         // in operator stack; then assign it to postfix expression
-        } else if (isOperator(expression[i])) {
+        } else if (isOperator(infix[i])) {
 
-            while (!isOpStackEmpty(s) && precedence(expression[i]) <= precedence(peekOperators(s))) {
+            while (!isOpStackEmpty(s) && precedence(infix[i]) <= precedence(peekOperators(s))) {
                 s->postfix[++j] = popOperators(s);
             }
 
             // pushing the found operator into the operator stack
-            pushOperators(s, expression[i]);
+            pushOperators(s, infix[i]);
 
             // space distinguishes numbers in postfix expression
             s->postfix[++j] = ' ';

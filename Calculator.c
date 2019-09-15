@@ -16,7 +16,7 @@
 // 4. output
 int main(void) {
 
-    char expression[MAX_INPUT];
+    char infix[MAX_INPUT];
 
     // initialise the stack once
     Stack s = stackMemory();
@@ -26,18 +26,18 @@ int main(void) {
         // reset the information in the stack
         reset(s);
 
-        // get the expression
+        // get the infix expression
         printf("> ");
-        input(expression);
+        input(infix);
 
-        // if expression matches kill command line
-        if (strncmp(expression, "q", 1) == 0 || strncmp(expression, "exit", 4) == 0) {
+        // if infix expression matches kill command line
+        if (strncmp(infix, "q", 1) == 0 || strncmp(infix, "exit", 4) == 0) {
             printf("...EXITING...\n\n");
             exit(0);
         }
 
         // get the expression in postfix
-        convert(s, expression);
+        convert(s, infix);
 
         // calculate the postfix expression
         evaluate(s);
@@ -49,9 +49,9 @@ int main(void) {
     return 0;
 }
 
-// input uses fgets to take string from stdin and put it in expression
-void input(char* expression) {
-    fgets(expression, MAX_INPUT, stdin);
+// input uses fgets to take string from stdin and put it in infix
+void input(char* infix) {
+    fgets(infix, MAX_INPUT, stdin);
 }
 
 // output prints the top and final value in the stack
