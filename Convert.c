@@ -1,4 +1,4 @@
-// Conversion.c
+// Convert.c
 // Dan Nguyen
 
 #include <assert.h>
@@ -39,7 +39,8 @@ void convert(Stack s, char* expression) {
         } else if (isLeftParenthesis(expression[i])) {
 
             // operator must exist before '('
-            if (!isOperator(expression[i - 1])) {
+            // exclude if space exists before '(' or if at beginning of expression
+            if (!isOperator(expression[i - 1]) && i > 0 && !isspace(expression[i - 1])) {
                 fprintf(stderr, "Error: Invalid Expression. Check operator before '('.");
                 free(s);
                 return;
