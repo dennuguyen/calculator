@@ -41,9 +41,8 @@ void convert(Stack s, char* expression) {
             // operator must exist before '('
             // exclude if space exists before '(' or if at beginning of expression
             if (!isOperator(expression[i - 1]) && i > 0 && !isspace(expression[i - 1])) {
-                fprintf(stderr, "Error: Invalid Expression. Check operator before '('.");
-                free(s);
-                return;
+                fprintf(stderr, "\nError: Invalid Expression. Check operator before '('.\n\n");
+                exit(1);
             }
 
             pushOperators(s, expression[i]);
