@@ -25,9 +25,13 @@ void evaluate(Stack s) {
     // encountering an operator calculates the sub-expression which is pushed into valStack
     // values are pushed into valStack
     for (int i = 0; s->postfix[i] != '\0'; i++) {
-
+        
         if (isOperator(s->postfix[i])) {
             calculate(s, s->postfix[i]);
+
+            // if operator is + or - and at beginning of string
+
+            // if ++ or +- or -+ or *- or /- or --                      // <----------- IMPLEMENT THIS TO REMOVE BUGS
 
         } else if (isdigit(s->postfix[i]) || isDecimalPoint(s->postfix[i])) {
 
@@ -52,9 +56,15 @@ void evaluate(Stack s) {
                     // use different algorithm when decimal place is encountered
                     for (double divisor = 1.0; !isspace(s->postfix[i]) || s->postfix[i] != '\0'; i++) {
                         
+                        if (isDecimalPoint(s->postfix[i])) {
+                            fprintf(stderr, "\nError: Invalid Expression. Check decimal place.\n\n");
+                            exit(1);
+                        }
+
                         // break loop if found space, nondigit token or decimal point
-                        if (!isdigit(s->postfix[i]) || isDecimalPoint(s->postfix[i]) || isspace(s->postfix[i])) {
+                        if (!isdigit(s->postfix[i]) || isspace(s->postfix[i])) {
                             pushValues(s, value);
+                            i--;
                             goto end;
                         }
                         
