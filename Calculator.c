@@ -14,12 +14,21 @@
 // 2. infix to postfix converter
 // 3. evaluate
 // 4. output
-int main(void) {
+int main(int argc, char* argv[]) {
 
     char infix[MAX_INPUT];
 
     // initialise the stack once
     Stack s = stackMemory();
+
+    // to use test cases
+    if (argv[1] == NULL) {
+        // do nothing
+    } else if (strncmp(argv[1], "test", 4) == 0) {
+        printf("\nTest Mode\n\n");
+        testCalculator(s);
+        printf("\nEnd Test\n\n");
+    }
 
     while (1) {
 
@@ -28,13 +37,7 @@ int main(void) {
 
         // get the infix expression
         printf("> ");
-        input(infix);
-
-        // if infix expression matches kill command line
-        if (strncmp(infix, "q", 1) == 0 || strncmp(infix, "exit", 4) == 0) {
-            printf("...EXITING...\n\n");
-            exit(0);
-        }
+        input(s, infix);
 
         // get the expression in postfix
         convert(s, infix);
@@ -50,12 +53,20 @@ int main(void) {
 }
 
 // input uses fgets to take string from stdin and put it in infix
-void input(char* infix) {
-    fgets(infix, MAX_INPUT, stdin);
+void input(Stack s, char* infix) {
+
+    // if infix expression matches kill command line
+    if (strncmp(infix, "q", 1) == 0 || strncmp(infix, "exit", 4) == 0) {
+        printf("...EXITING...\n\n");
+        exit(0);
+
+    } else {
+        fgets(infix, MAX_INPUT, stdin);
+    }
 }
 
 // output prints the top and final value in the stack
 void output(Stack s) {
     assert(s->valTop == 0);
-    printf("> %lf\n", s->valStack[0]);
+    printf("> %lf\n", s->valStack[s->valTop]);
 }
