@@ -9,6 +9,7 @@ division
 paranthesis
 power
 factorial
+
 Features to be Implemented:
 
 sin
@@ -17,3 +18,5 @@ tan
 log/ ln
 S <=> D
 complex numbers
+negative roots
+fractional roots
