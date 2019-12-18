@@ -1,21 +1,19 @@
 // Evaluate.c
 // Dan Nguyen
 
+#include <assert.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "Stack.h"
 #include "Calculator.h"
-
-// External Helper Functions
-// Implemented in Convert.c
-extern int isDecimalPoint(char token);
-extern int isOperator(char token);
+#include "Helper.h"
 
 // Static Helper Functions
+static int flop(Stack s, int i, int isNegated);
 static void calculate(Stack s, char token);
-static long long int  factorial(long long int value);
+static long long int factorial(long long int value);
 static long double power(long double b, long double a);
 
 // evaluates the postfix expression
@@ -27,59 +25,82 @@ void evaluate(Stack s) {
     for (int i = 0; s->postfix[i] != '\0'; i++) {
         
         if (isOperator(s->postfix[i])) {
-            calculate(s, s->postfix[i]);
 
-            // if operator is + or - and at beginning of string
+            // operator is at beginning of string
+            if (s->postfix[i] == 0) {
+                // do nothing
 
-            // if ++ or +- or -+ or *- or /- or --                      // <----------- IMPLEMENT THIS TO REMOVE BUGS
+            // if operator is unary
+            } else if (isdigit(s->postfix[i + 1]) && precedence(s->postfix[i]) == 1) {
+                i++;
+                i = flop(s, i, TRUE);
 
-        } else if (isdigit(s->postfix[i]) || isDecimalPoint(s->postfix[i])) {
-
-            // loop through number
-            for (double value = 0.0; !isspace(s->postfix[i]) || s->postfix[i] != '\0'; i++) {
-
-                // !digit is indicator for when a sequence of digits ends
-                // do not break if token is a decimal point
-                // i-- because performed extra loop
-                if (!isdigit(s->postfix[i]) && !isDecimalPoint(s->postfix[i])) {
-                    pushValues(s, value);
-                    i--;
-                    break; // breaks to end:
-                }
-
-                // add numbers after decimal place
-                if (isDecimalPoint(s->postfix[i])) {
-                    
-                    // skip decimal point
-                    i++;
-
-                    // use different algorithm when decimal place is encountered
-                    for (double divisor = 1.0; !isspace(s->postfix[i]) || s->postfix[i] != '\0'; i++) {
-                        
-                        if (isDecimalPoint(s->postfix[i])) {
-                            fprintf(stderr, "\nError: Invalid Expression. Check decimal place.\n\n");
-                            exit(1);
-                        }
-
-                        // break loop if found space, nondigit token or decimal point
-                        if (!isdigit(s->postfix[i]) || isspace(s->postfix[i])) {
-                            pushValues(s, value);
-                            i--;
-                            goto end;
-                        }
-                        
-                        divisor *=  10.0;
-                        value = value + (s->postfix[i] - '0')/divisor;
-                    }
-                } else {
-                    // add numbers before decimal place
-                    value = (value * 10.0) + (s->postfix[i] - '0');
-                }
+            } else {
+                // calculate the stack
+                calculate(s, s->postfix[i]);
             }
+        } else if (isdigit(s->postfix[i]) || isalpha(s->postfix[i]) || isDecimalPoint(s->postfix[i])) {
 
-            end: ;
+            i = flop(s, i, FALSE);
         }
     }
+}
+
+static int flop(Stack s, int i, int isNegated) {
+
+    double value = 0.0;
+
+    // loop through number
+    for (; !isspace(s->postfix[i]) || s->postfix[i] != '\0'; i++) {
+
+        // !digit is indicator for when a sequence of digits ends
+        // do not break if token is a decimal point
+        // i-- because performed extra loop
+        if (!isdigit(s->postfix[i]) && !isDecimalPoint(s->postfix[i])) {
+            goto end;
+        }
+
+        // add numbers after decimal place
+        if (isDecimalPoint(s->postfix[i])) {
+            
+            // skip decimal point
+            i++;
+
+            // use different algorithm when decimal place is encountered
+            for (double divisor = 1.0; !isspace(s->postfix[i]) || s->postfix[i] != '\0'; i++) {
+                
+                if (isDecimalPoint(s->postfix[i])) {
+                    fprintf(stderr, "\nError: Invalid Expression. Check decimal place.\n\n");
+                    exit(1);
+                }
+
+                // break loop if found space, nondigit token or decimal point
+                if (!isdigit(s->postfix[i]) || isspace(s->postfix[i])) {
+                    goto end;
+                }
+                
+                divisor *=  10.0;
+                value = value + (s->postfix[i] - '0')/divisor;
+            }
+        } else {
+            // add numbers before decimal place
+            value = (value * 10.0) + (s->postfix[i] - '0');
+        }
+    }
+    
+    // natural termination of for loop
+    return i;
+
+    // flop termination of for loop
+    end: ;
+
+    if (isNegated) {
+        value *= -1;
+    }
+
+    pushValues(s, value);
+
+    return --i;
 }
 
 // calculate pops the required number of values from the top of valStack
@@ -160,4 +181,3 @@ static long double power(long double b, long double a) {
 
     return value;
 }
-
