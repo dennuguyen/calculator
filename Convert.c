@@ -5,23 +5,25 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "Stack.h"
 #include "Calculator.h"
-
-// External Helper Functions
-extern int isDecimalPoint(char token);
-extern int isOperator(char token);
+#include "Helper.h"
 
 // Static Helper Functions
-static int precedence(char token);
+static char* deblank(char* input);
 static int isLeftParenthesis(char token);
 static int isRightParenthesis(char token);
+static int isUnaryOperator(char* infix, int i);
 
 // converts infix expressions to postfix
 // operands are pushed into postfix expression
 // operators are pushed into opStack then popped from opStack into postfix expression
 void convert(Stack s, char* infix) {
+
+    // deblank the infix expression
+    deblank(infix);
 
     // i is position index of infix expression
     // j is position index of postfix expression
@@ -63,16 +65,43 @@ void convert(Stack s, char* infix) {
         // push operator into operator stack unless its precedence is greater than the top operator
         // in operator stack; then assign it to postfix expression
         } else if (isOperator(infix[i])) {
+            
+            if (isUnaryOperator(infix, i)) {
+                
+                // k is '-' count
+                int k;
+                char sign;
 
-            while (!isOpStackEmpty(s) && precedence(infix[i]) <= precedence(peekOperators(s))) {
-                s->postfix[++j] = popOperators(s);
+                // simplify multiple negation
+                for (k = 0; precedence(infix[i]) == 1; i++) {
+                    if (infix[i] == '-') {
+                        k++;
+                    }
+                }
+
+                if (k % 2 == 0) {
+                    sign = '+';
+                } else {
+                    sign = '-';
+                }
+
+                // assign the sign
+                s->postfix[++j] = sign;
+
+                // assign the operand
+                s->postfix[++j] = infix[i];
+
+            } else {
+                while (!isOpStackEmpty(s) && precedence(infix[i]) <= precedence(peekOperators(s))) {
+                    s->postfix[++j] = popOperators(s);
+                }
+
+                // pushing the found operator into the operator stack
+                pushOperators(s, infix[i]);
+
+                // space distinguishes numbers in postfix expression
+                s->postfix[++j] = ' ';
             }
-
-            // pushing the found operator into the operator stack
-            pushOperators(s, infix[i]);
-
-            // space distinguishes numbers in postfix expression
-            s->postfix[++j] = ' ';
         }
     }
 
@@ -85,50 +114,23 @@ void convert(Stack s, char* infix) {
     s->postfix[++j] = '\0';
 }
 
-// checks and returns TRUE if token is a decimal point; FALSE otherwise
-extern int isDecimalPoint(char token) {
+// removes all white space from the infix expression
+static char* deblank(char* input) {
 
-    if (token == '.') {
-        return TRUE;
+    int i, j;
+    char* output = input;
+
+    for (i = 0, j = 0; i < strlen(input); i++, j++) {
+        if (input[i] != ' ') {
+            output[j] = input[i];
+        } else {
+            j--;
+        }
     }
 
-    return FALSE;
-}
+    output[j] = '\0';
 
-// checks and returns TRUE if token is an operator; FALSE otherwise
-extern int isOperator(char token) {
-
-    if (token == '+' || token == '-' || token == '*' || token == '/' || token == '^' || token == '!') {
-        return TRUE;
-    }
-
-    return FALSE;
-}
-
-// checks and returns the index of precedence of the token operator
-static int precedence(char token) {
-
-    switch (token) {
-        case '(':
-        case ')':
-            return 0;
-        case '+':
-        case '-':
-            return 1;
-        case '*':
-        case '/':
-            return 2;
-        case '^':
-        case '!':
-            return 3;/*
-        case "sin":
-        case "cos":
-        case "tan":
-            return 4;*/
-    }
-
-    fprintf(stderr, "\nERROR: INVALID TOKEN OPERATOR\n\n");
-    exit(1);
+    return output;
 }
 
 // checks and returns TRUE is token is a left parenthesis; FALSE otherwise
@@ -146,6 +148,29 @@ static int isRightParenthesis(char token) {
 
     if (token == ')') {
         return TRUE;
+    }
+
+    return FALSE;
+}
+
+// differentiates unary and binary operators
+static int isUnaryOperator(char* infix, int i) {
+    
+    // i is the index of the unary operator
+    if (precedence(infix[i]) == 1) {
+
+        // consider beginning of expression
+        if (i == 0) {
+            return TRUE;
+
+        // consider after '('
+        } else if (infix[i - 1] == '(') {
+            return TRUE;
+
+        // consider after binary operator
+        } else if (isOperator(infix[i - 1])) {
+            return TRUE;
+        }
     }
 
     return FALSE;
