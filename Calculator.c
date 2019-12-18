@@ -8,6 +8,7 @@
 
 #include "Stack.h"
 #include "Calculator.h"
+#include "Helper.h"
 
 // Identification of Main Components:
 // 1. input
