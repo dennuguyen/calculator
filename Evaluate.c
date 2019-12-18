@@ -32,9 +32,14 @@ void evaluate(Stack s) {
 
             // if operator is unary
             } else if (isdigit(s->postfix[i + 1]) && precedence(s->postfix[i]) == 1) {
-                i++;
-                i = flop(s, i, TRUE);
-
+                
+                // flag if the unary operator is negation
+                if (s->postfix[i++] == '-') {
+                    i = flop(s, i, TRUE);
+                } else {
+                    i = flop(s, i, FALSE);
+                }
+                
             } else {
                 // calculate the stack
                 calculate(s, s->postfix[i]);
@@ -46,6 +51,7 @@ void evaluate(Stack s) {
     }
 }
 
+// flop is an algorithm to determine the double value from an array of char
 static int flop(Stack s, int i, int isNegated) {
 
     double value = 0.0;
