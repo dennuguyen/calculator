@@ -22,26 +22,26 @@ Stack stackMemory(void) {
 // Resets opTop and valTop to -1 to indicate stacks are empty
 // since opTop and valTop represents the position of the top token
 void reset(Stack s) {
-    s->opTop = -1;
-    s->valTop = -1;
+    s->opTop = EMPTY;
+    s->valTop = EMPTY;
 }
 
 // Checks if operator stack is empty
 int isOpStackEmpty(Stack s) {
-    return s->opTop == -1;
+    return s->opTop == EMPTY;
 }
 
 // Checks if value stack is empty
 int isValStackEmpty(Stack s) {
-    return s->valTop == -1;
+    return s->valTop == EMPTY;
 }
 
 // Peeks at the top of the value stack
 double peekValues(Stack s) {
 
     // value stack is empty
-    if (s->valTop == -1) {
-        return -1;
+    if (isValStackEmpty(s)) {
+        return EMPTY;
     }
 
     return s->valStack[s->valTop];
@@ -51,8 +51,8 @@ double peekValues(Stack s) {
 char peekOperators(Stack s) {
 
     // operator stack is empty
-    if (s->opTop == -1) {
-        return -1;
+    if (isOpStackEmpty(s)) {
+        return EMPTY;
     }
 
     return s->opStack[s->opTop];
@@ -87,7 +87,7 @@ void pushOperators(Stack s, char op) {
 double popValues(Stack s) {
 
     // check if stack is empty
-    if (s->valTop == -1) {
+    if (isValStackEmpty(s)) {
         fprintf(stderr, "\nERROR: TRIED TO POP EMPTY VALUE STACK\n\n");
         exit(1);
     }
@@ -99,7 +99,7 @@ double popValues(Stack s) {
 char popOperators(Stack s) {
 
     // check if stack is empty
-    if (s->opTop == -1) {
+    if (isOpStackEmpty(s)) {
         fprintf(stderr, "\nERROR: TRIED TO POP EMPTY OPERATOR STACK\n\n");
         exit(1);
     }

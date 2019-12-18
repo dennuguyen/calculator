@@ -5,6 +5,7 @@
 #define STACK_H
 
 #define MAX_INPUT   50
+#define EMPTY       -1
 
 typedef struct _stack* Stack;
 
