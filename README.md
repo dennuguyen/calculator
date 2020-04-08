@@ -1,4 +1,4 @@
-Scientific calculator that converts in-fix expressions from the command line to post-fix then evaluates them.
+Calculator that converts in-fix expressions from the command line to post-fix then evaluates them.
 
 Features:
 
@@ -6,7 +6,7 @@ addition
 subtraction
 multiplication
 division
-paranthesis
+parenthesis
 power
 factorial
 
